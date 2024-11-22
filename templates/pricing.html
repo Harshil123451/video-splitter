@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="pricing-container">
+    <h2>Choose Your Plan</h2>
+    <div class="pricing-grid">
+        {% for tier_id, tier in tiers.items() %}
+        <div class="pricing-card">
+            <h3>{{ tier.name }}</h3>
+            <div class="price">
+                {% if tier.price == 0 %}
+                    Free
+                {% else %}
+                    ${{ "%.2f"|format(tier.price/100) }}/month
+                {% endif %}
+            </div>
+            <ul class="features">
+                <li>Max file size: {{ tier.max_file_size/(1024*1024) }}MB</li>
+                {% for feature in tier.features %}
+                <li>{{ feature|replace('_', ' ')|title }}</li>
+                {% endfor %}
+            </ul>
+            {% if tier_id != 'free' %}
+            <button onclick="checkout('{{ tier_id }}')" class="upgrade-btn">
+                Upgrade Now
+            </button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+const stripe = Stripe('your_stripe_publishable_key');
+
+async function checkout(tierId) {
+    try {
+        const response = await fetch('/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tier: tierId
+            })
+        });
+        
+        const session = await response.json();
+        
+        const result = await stripe.redirectToCheckout({
+            sessionId: session.sessionId
+        });
+
+        if (result.error) {
+            alert(result.error.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Something went wrong. Please try again.');
+    }
+}
+</script>
+{% endblock %} 

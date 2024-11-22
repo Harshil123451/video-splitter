@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+# Uploads and outputs
+uploads/
+output_videos/
+output_audio/
+ffmpeg/
+
+# Temporary files
+*TEMP_MPY_*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
